@@ -2,6 +2,8 @@ const {ethers} = require("ethers");
 const abi = require("./utils/aavegotchiFacetABI.json");
 const {google} = require("googleapis");
 const fetch = require("cross-fetch");
+/* const CronJob = require("cron").CronJob; */
+const nodeCron = require("node-cron");
 
 const POLYGON_KEY =
   "https://polygon-mainnet.g.alchemy.com/v2/QdzN_7dicLMlXL4E3Nhfzwh1x95abRMs";
@@ -26,8 +28,8 @@ const kekContract = new ethers.Contract(KEK_CONTRACT_ADDRESS, abi2, alchemyProvi
 const lendersAddresses = ["0xC99DF6B7A5130Dce61bA98614A2457DAA8d92d1c"]; // insert addresses of lender that you want to check
 const gotchiLended = [];
 
-let lastBlock = 26792528
-let firstBlock = lastBlock - 38950;
+let lastBlock;
+let firstBlock;
 
 // function to get everyday blocks
 const getBlocks = async () => {
@@ -238,25 +240,24 @@ const sheetsColumnsArray = ["G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q
 
 async function loop (column) {
     const borrowerArray = await fetchDataFromSheet();
-    /* await getBlocks(); */
+    await getBlocks();
     console.log(borrowerArray)
     for (let i = 1; i < borrowerArray.length; i++) {
         main(borrowerArray[i][0], i+1, column)
     }
 }
 
-let i = 5;
+let i = 6;
 
-setInterval(() => {
+const job = nodeCron.schedule("0 59 23 * * *", function jobYouNeedToExecute() {
     console.log(i);
 
-    if ( i < 31) {
+    if ( i <= 31) {
         loop(sheetsColumnsArray[i]);
         i ++;
     }
 
-}, 20000)
-
+}, {timezone: "Etc/GMT"});
 
 // function to find block based on timestamp
 /* const findBlockFromTimestamp = async () => {
