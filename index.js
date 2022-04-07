@@ -287,7 +287,7 @@ const job = nodeCron.schedule("0 59 23 * * *", function jobYouNeedToExecute() {
 
 }, {timezone: "Etc/GMT"});
 
-const job2 = nodeCron.schedule("0 00 24 * * *", function jobYouNeedToExecute() {
+const job2 = nodeCron.schedule("0 00 00 * * *", function jobYouNeedToExecute() {
     console.log(j);
 
     if ( j <= 31) {
