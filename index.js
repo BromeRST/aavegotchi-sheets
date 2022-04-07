@@ -2,7 +2,7 @@ const {ethers} = require("ethers");
 const abi = require("./utils/aavegotchiFacetABI.json");
 const {google} = require("googleapis");
 const fetch = require("cross-fetch");
-/* const CronJob = require("cron").CronJob; */
+
 const nodeCron = require("node-cron");
 
 const POLYGON_KEY =
@@ -25,7 +25,6 @@ const fomoContract = new ethers.Contract(FOMO_CONTRACT_ADDRESS, abi2, alchemyPro
 const alphaContract = new ethers.Contract(ALPHA_CONTRACT_ADDRESS, abi2, alchemyProvider);
 const kekContract = new ethers.Contract(KEK_CONTRACT_ADDRESS, abi2, alchemyProvider);
 
-const lendersAddresses = ["0xC99DF6B7A5130Dce61bA98614A2457DAA8d92d1c"]; // insert addresses of lender that you want to check
 const gotchiLended = [];
 
 let lastBlock;
@@ -227,7 +226,26 @@ async function fetchDataFromSheet () {
         const getRows = await sheets.spreadsheets.values.get({
             auth,
             spreadsheetId,
-            range: "Results April 2022!A:A",
+            range: "Results April 2022!A1:A20",
+        })
+
+        return getRows.data.values
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function fetchDataFromSheet2 () {
+    const client = await auth.getClient();
+    const sheets = google.sheets({version: 'v4', auth: client});
+
+    try {
+
+        // Read rows from spreadsheet
+        const getRows = await sheets.spreadsheets.values.get({
+            auth,
+            spreadsheetId,
+            range: "Results April 2022!A21:A45",
         })
 
         return getRows.data.values
@@ -247,7 +265,17 @@ async function loop (column) {
     }
 }
 
-let i = 6;
+async function loop2 (column) {
+    const borrowerArray = await fetchDataFromSheet2();
+    await getBlocks();
+    console.log(borrowerArray)
+    for (let i = 0; i < borrowerArray.length; i++) {
+        main(borrowerArray[i][0], i+21, column)
+    }
+}
+
+let i = 7;
+let j = 7;
 
 const job = nodeCron.schedule("0 59 23 * * *", function jobYouNeedToExecute() {
     console.log(i);
@@ -259,10 +287,20 @@ const job = nodeCron.schedule("0 59 23 * * *", function jobYouNeedToExecute() {
 
 }, {timezone: "Etc/GMT"});
 
+const job2 = nodeCron.schedule("0 00 24 * * *", function jobYouNeedToExecute() {
+    console.log(j);
+
+    if ( j <= 31) {
+        loop2(sheetsColumnsArray[j]);
+        j ++;
+    }
+
+}, {timezone: "Etc/GMT"});
+
 // function to find block based on timestamp
 /* const findBlockFromTimestamp = async () => {
     const response = await fetch(
-      `https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=1649203140&closest=before&apikey=YourApiKeyToken`
+      `https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=1649289540&closest=before&apikey=YourApiKeyToken`
     );
     const blockNumber = await response.json();
     console.log(blockNumber)
