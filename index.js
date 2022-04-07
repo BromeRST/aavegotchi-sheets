@@ -277,7 +277,7 @@ async function loop2 (column) {
 let i = 7;
 let j = 7;
 
-const job = nodeCron.schedule("0 59 23 * * *", function jobYouNeedToExecute() {
+const job = nodeCron.schedule("0 15 9 * * *", function jobYouNeedToExecute() {
     console.log(i);
 
     if ( i <= 31) {
@@ -287,7 +287,7 @@ const job = nodeCron.schedule("0 59 23 * * *", function jobYouNeedToExecute() {
 
 }, {timezone: "Etc/GMT"});
 
-const job2 = nodeCron.schedule("0 00 00 * * *", function jobYouNeedToExecute() {
+const job2 = nodeCron.schedule("0 16 9 * * *", function jobYouNeedToExecute() {
     console.log(j);
 
     if ( j <= 31) {
