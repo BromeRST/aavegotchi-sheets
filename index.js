@@ -4,6 +4,7 @@ const {google} = require("googleapis");
 const fetch = require("cross-fetch");
 
 const nodeCron = require("node-cron");
+const moment = require("moment");
 
 const POLYGON_KEY =
   "https://polygon-mainnet.g.alchemy.com/v2/QdzN_7dicLMlXL4E3Nhfzwh1x95abRMs";
@@ -27,16 +28,18 @@ const kekContract = new ethers.Contract(KEK_CONTRACT_ADDRESS, abi2, alchemyProvi
 
 const gotchiLended = [];
 
+let lastTimestamp; 
+let firstTimestamp;
 let lastBlock;
 let firstBlock;
 
 // function to get everyday blocks
-const getBlocks = async () => {
+/* const getBlocks = async () => {
     lastBlock = await alchemyProvider.getBlockNumber();
     firstBlock = lastBlock - 38100;
-    console.log("fist", firstBlock);
+    console.log("first", firstBlock);
     console.log("last", lastBlock);
-}
+} */
 
 // function to get gotchi lended for an address
 /* const fetchGotchiLended = async () => {
@@ -67,6 +70,24 @@ const getBlocks = async () => {
         console.log("error");
     }
 }; */
+
+// function to find block based on timestamp
+const findBlockFromTimestamp = async (timestamp) => {
+    const response = await fetch(
+      `https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=YourApiKeyToken`
+    );
+    const blockNumber = await response.json();
+    console.log(Number(blockNumber.result))
+    return Number(blockNumber.result);
+}
+
+async function getLastBlockFromTs () {
+    lastBlock = await findBlockFromTimestamp(lastTimestamp);
+}
+
+async function getFirstBlockFromTs () {
+    firstBlock = await findBlockFromTimestamp(firstTimestamp);
+}
 
 // function to fetch daily FUD earn
 const fetchFudBorrowerEntry = async (borrower) => {
@@ -230,17 +251,25 @@ async function fetchDataFromSheet2 () {
 const sheetsColumnsArray = ["G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK"];
 
 async function loop (column) {
+    lastTimestamp = moment().unix();
+    firstTimestamp = moment().subtract(1, 'days').unix();
+    console.log("lastTs", lastTimestamp);
+    console.log("firstTs", firstTimestamp);
     const borrowerArray = await fetchDataFromSheet();
-    await getBlocks();
-    console.log(borrowerArray)
-    for (let i = 1; i < borrowerArray.length; i++) {
-        main(borrowerArray[i][0], i+1, column)
-    }
+    getLastBlockFromTs();
+
+    setTimeout(getFirstBlockFromTs, 5000)
+    setTimeout(() => {
+        console.log(borrowerArray)
+        for (let i = 1; i < borrowerArray.length; i++) {
+            main(borrowerArray[i][0], i+1, column);
+        }
+    }, 7000)
 }
 
 async function loop2 (column) {
     const borrowerArray = await fetchDataFromSheet2();
-    await getBlocks();
+
     console.log(borrowerArray)
     for (let i = 0; i < borrowerArray.length; i++) {
         main(borrowerArray[i][0], i+21, column)
@@ -250,7 +279,7 @@ async function loop2 (column) {
 let i = 8;
 let j = 8;
 
-const job = nodeCron.schedule("0 59 23 * * *", function jobYouNeedToExecute() {
+const job = nodeCron.schedule("0 00 00 * * *", function jobYouNeedToExecute() {
     console.log(i);
 
     if ( i <= 31) {
@@ -260,7 +289,7 @@ const job = nodeCron.schedule("0 59 23 * * *", function jobYouNeedToExecute() {
 
 }, {timezone: "Etc/GMT"});
 
-const job2 = nodeCron.schedule("0 00 0 * * *", function jobYouNeedToExecute() {
+const job2 = nodeCron.schedule("0 02 00 * * *", function jobYouNeedToExecute() {
     console.log(j);
 
     if ( j <= 31) {
@@ -269,14 +298,3 @@ const job2 = nodeCron.schedule("0 00 0 * * *", function jobYouNeedToExecute() {
     }
 
 }, {timezone: "Etc/GMT"});
-
-// function to find block based on timestamp
-/* const findBlockFromTimestamp = async () => {
-    const response = await fetch(
-      `https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=1649375940&closest=before&apikey=YourApiKeyToken`
-    );
-    const blockNumber = await response.json();
-    console.log(blockNumber)
-}
-
-findBlockFromTimestamp() */
