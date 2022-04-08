@@ -33,7 +33,7 @@ let firstBlock;
 // function to get everyday blocks
 const getBlocks = async () => {
     lastBlock = await alchemyProvider.getBlockNumber();
-    firstBlock = lastBlock - 38950;
+    firstBlock = lastBlock - 38100;
     console.log("fist", firstBlock);
     console.log("last", lastBlock);
 }
@@ -67,22 +67,6 @@ const getBlocks = async () => {
         console.log("error");
     }
 }; */
-
-
-// function to transform timestamp in date (tested)
-/* const transformInDate = (gotchi) => {
-    const milliseconds = gotchi.timeAgreed * 1000;
-    const dateObject = new Date(milliseconds);
-
-    return (
-        dateObject.toLocaleString([], {
-        year: "numeric",
-        day: "numeric",
-        month: "numeric",
-        })
-    )
-}; */
-
 
 // function to fetch daily FUD earn
 const fetchFudBorrowerEntry = async (borrower) => {
@@ -170,14 +154,11 @@ async function main (borrower, i, column) {
         sheets.spreadsheets.values.append({
             auth,
             spreadsheetId,
-            range: `Results April 2022!${column}${i}`, //`Foglio1!A${i}:B${i}`,
+            range: `Results April 2022!${column}${i}`,
             valueInputOption: "USER_ENTERED",
             resource: {
                 values: [
                     [
-/*                         `${gotchi.borrower}`, 
-                        `${gotchi.lender}`, 
-                        `${transformInDate(gotchi)}`, */
                         `${await fetchFudBorrowerEntry(borrower)} / ${await fetchFomoBorrowerEntry(borrower)} / ${await fetchAlphaBorrowerEntry(borrower)} / ${await fetchKekBorrowerEntry(borrower)}`
                     ]
                 ]
@@ -214,14 +195,6 @@ async function fetchDataFromSheet () {
     };
 
     try {
-        /* const request = { 
-            auth,
-            spreadsheetId,
-        };
-              const response = await sheets.spreadsheets.get(request);
-        // TODO: Change code below to process the `response` object:
-        console.log(JSON.stringify(response, null, 2)); */
-
         // Read rows from spreadsheet
         const getRows = await sheets.spreadsheets.values.get({
             auth,
@@ -277,7 +250,7 @@ async function loop2 (column) {
 let i = 8;
 let j = 8;
 
-const job = nodeCron.schedule("0 51 12 * * *", function jobYouNeedToExecute() {
+const job = nodeCron.schedule("0 59 23 * * *", function jobYouNeedToExecute() {
     console.log(i);
 
     if ( i <= 31) {
@@ -287,7 +260,7 @@ const job = nodeCron.schedule("0 51 12 * * *", function jobYouNeedToExecute() {
 
 }, {timezone: "Etc/GMT"});
 
-const job2 = nodeCron.schedule("0 52 12 * * *", function jobYouNeedToExecute() {
+const job2 = nodeCron.schedule("0 00 0 * * *", function jobYouNeedToExecute() {
     console.log(j);
 
     if ( j <= 31) {
@@ -300,7 +273,7 @@ const job2 = nodeCron.schedule("0 52 12 * * *", function jobYouNeedToExecute() {
 // function to find block based on timestamp
 /* const findBlockFromTimestamp = async () => {
     const response = await fetch(
-      `https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=1649289540&closest=before&apikey=YourApiKeyToken`
+      `https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=1649375940&closest=before&apikey=YourApiKeyToken`
     );
     const blockNumber = await response.json();
     console.log(blockNumber)
