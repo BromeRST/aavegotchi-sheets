@@ -33,6 +33,9 @@ let firstTimestamp;
 let lastBlock;
 let firstBlock;
 
+let today;
+let dd;
+
 // function to get everyday blocks
 /* const getBlocks = async () => {
     lastBlock = await alchemyProvider.getBlockNumber();
@@ -256,14 +259,14 @@ async function loop (column) {
 
     const borrowerArray = await fetchDataFromSheet();
     getLastBlockFromTs();
-    setTimeout(getFirstBlockFromTs, 5000)
+    setTimeout(getFirstBlockFromTs, 7000)
 
     setTimeout(() => {
         console.log(borrowerArray)
         for (let i = 1; i < borrowerArray.length; i++) {
             main(borrowerArray[i][0], i+1, column);
         }
-    }, 7000)
+    }, 10000)
 }
 
 async function loop2 (column) {
@@ -275,28 +278,26 @@ async function loop2 (column) {
     }
 }
 
-let today = new Date();
-let dd = String(today.getDate()).padStart(2, '0');
+function updateDate() {
+    today = new Date(); 
+    dd = String(today.getDate()).padStart(2, '0');
+    i = Number(dd - 1);
+}
 
-let i = Number(dd - 1);
-let j = Number(dd - 1);
-
-const job = nodeCron.schedule("0 01 00 * * *", function jobYouNeedToExecute() {
-    console.log(i);
-
+const job = nodeCron.schedule("0 01 0 * * *", function jobYouNeedToExecute() {
+    updateDate();
+    console.log("i", i);
     if ( i <= 31) {
         loop(sheetsColumnsArray[i]);
-        i ++;
     }
 
 }, {timezone: "Etc/GMT"});
 
-const job2 = nodeCron.schedule("0 03 00 * * *", function jobYouNeedToExecute() {
-    console.log(j);
+const job2 = nodeCron.schedule("0 03 0 * * *", function jobYouNeedToExecute() {
+    console.log(i);
 
-    if ( j <= 31) {
-        loop2(sheetsColumnsArray[j]);
-        j ++;
+    if ( i <= 31) {
+        loop2(sheetsColumnsArray[i]);
     }
 
 }, {timezone: "Etc/GMT"});
