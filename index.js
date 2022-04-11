@@ -251,7 +251,28 @@ async function fetchDataFromSheet2 () {
     }
 }
 
+async function fetchDataFromSheet3 () {
+    const client = await auth.getClient();
+    const sheets = google.sheets({version: 'v4', auth: client});
+
+    try {
+
+        // Read rows from spreadsheet
+        const getRows = await sheets.spreadsheets.values.get({
+            auth,
+            spreadsheetId,
+            range: "Results April 2022!A46:A",
+        })
+
+        return getRows.data.values
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 const sheetsColumnsArray = ["G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK"];
+
+let i; 
 
 async function loop (column) {
     lastTimestamp = moment().unix();
@@ -275,6 +296,15 @@ async function loop2 (column) {
     console.log(borrowerArray)
     for (let i = 0; i < borrowerArray.length; i++) {
         main(borrowerArray[i][0], i+21, column)
+    }
+}
+
+async function loop3 (column) {
+    const borrowerArray = await fetchDataFromSheet3();
+
+    console.log(borrowerArray)
+    for (let i = 0; i < borrowerArray.length; i++) {
+        main(borrowerArray[i][0], i+46, column)
     }
 }
 
@@ -302,10 +332,19 @@ const job2 = nodeCron.schedule("0 03 0 * * *", function jobYouNeedToExecute() {
 
 }, {timezone: "Etc/GMT"});
 
+const job3 = nodeCron.schedule("0 05 00 * * *", function jobYouNeedToExecute() {
+    console.log(i);
+
+    if ( i <= 31) {
+        loop3(sheetsColumnsArray[i]);
+    }
+
+}, {timezone: "Etc/GMT"});
+
 // function to find block based on timestamp
 /* const findBlocks = async () => {
     const response = await fetch(
-      `https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=1649462340&closest=before&apikey=YourApiKeyToken`
+      `https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=1649376120&closest=before&apikey=YourApiKeyToken`
     );
     const blockNumber = await response.json();
     console.log("BLOCK", Number(blockNumber.result))
