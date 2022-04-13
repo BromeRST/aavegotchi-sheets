@@ -95,15 +95,18 @@ async function getFirstBlockFromTs () {
 // function to fetch daily FUD earn
 const fetchFudBorrowerEntry = async (borrower) => {
     try {
-        const filter = fudContract.filters.Transfer(null, borrower);
-        const events = await fudContract.queryFilter(filter, firstBlock, lastBlock);
-        let totalDailyEarn = 0;
+        if (borrower !== undefined) {
+            const filter = fudContract.filters.Transfer(null, borrower);
+            const events = await fudContract.queryFilter(filter, firstBlock, lastBlock);
+            let totalDailyEarn = 0;
 
-        events.map((e) =>
-            totalDailyEarn += Number(ethers.utils.formatUnits(e.args.val))
-        );
+            events.map((e) =>
+                totalDailyEarn += Number(ethers.utils.formatUnits(e.args.val))
+            );
 
-        return totalDailyEarn.toFixed(0);
+            return totalDailyEarn.toFixed(0);
+        }
+        return 0;
     } catch (err) {
         console.error(err);
     }
@@ -112,15 +115,18 @@ const fetchFudBorrowerEntry = async (borrower) => {
 // function to fetch daily FOMO earn
 const fetchFomoBorrowerEntry = async (borrower) => {
     try {
-        const filter = fomoContract.filters.Transfer(null, borrower);
-        const events = await fomoContract.queryFilter(filter, firstBlock, lastBlock);
-        let totalDailyEarn = 0;
+        if (borrower !== undefined) {
+            const filter = fomoContract.filters.Transfer(null, borrower);
+            const events = await fomoContract.queryFilter(filter, firstBlock, lastBlock);
+            let totalDailyEarn = 0;
 
-        events.map((e) =>
-            totalDailyEarn += Number(ethers.utils.formatUnits(e.args.val))
-        );
+            events.map((e) =>
+                totalDailyEarn += Number(ethers.utils.formatUnits(e.args.val))
+            );
 
-        return totalDailyEarn.toFixed(0);
+            return totalDailyEarn.toFixed(0);
+        }
+        return 0;
     } catch {
         console.log("error");
     }
@@ -129,15 +135,18 @@ const fetchFomoBorrowerEntry = async (borrower) => {
 // function to fetch daily ALPHA earn
 const fetchAlphaBorrowerEntry = async (borrower) => {
     try {
-        const filter = alphaContract.filters.Transfer(null, borrower);
-        const events = await alphaContract.queryFilter(filter, firstBlock, lastBlock);
-        let totalDailyEarn = 0;
+        if (borrower !== undefined) {
+            const filter = alphaContract.filters.Transfer(null, borrower);
+            const events = await alphaContract.queryFilter(filter, firstBlock, lastBlock);
+            let totalDailyEarn = 0;
 
-        events.map((e) =>
-            totalDailyEarn += Number(ethers.utils.formatUnits(e.args.val))
-        );
+            events.map((e) =>
+                totalDailyEarn += Number(ethers.utils.formatUnits(e.args.val))
+            );
 
-        return totalDailyEarn.toFixed(0);
+            return totalDailyEarn.toFixed(0);
+        }
+        return 0;
     } catch {
         console.log("error");
     }
@@ -146,15 +155,18 @@ const fetchAlphaBorrowerEntry = async (borrower) => {
 // function to fetch daily KEK earn
 const fetchKekBorrowerEntry = async (borrower) => {
     try {
-        const filter = kekContract.filters.Transfer(null, borrower);
-        const events = await kekContract.queryFilter(filter, firstBlock, lastBlock);
-        let totalDailyEarn = 0;
+        if (borrower !== undefined) {
+            const filter = kekContract.filters.Transfer(null, borrower);
+            const events = await kekContract.queryFilter(filter, firstBlock, lastBlock);
+            let totalDailyEarn = 0;
 
-        events.map((e) =>
-            totalDailyEarn += Number(ethers.utils.formatUnits(e.args.val))
-        );
+            events.map((e) =>
+                totalDailyEarn += Number(ethers.utils.formatUnits(e.args.val))
+            );
 
-        return totalDailyEarn.toFixed(0);
+            return totalDailyEarn.toFixed(0);
+        }
+        return 0;
     } catch {
         console.log("error");
     }
