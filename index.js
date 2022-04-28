@@ -30,19 +30,12 @@ const gotchiLended = [];
 
 let lastTimestamp; 
 let firstTimestamp;
-let lastBlock;
-let firstBlock;
+
+let lastBlock /* = 27656131; */
+let firstBlock /* = 27616205; */
 
 let today;
 let dd;
-
-// function to get everyday blocks
-/* const getBlocks = async () => {
-    lastBlock = await alchemyProvider.getBlockNumber();
-    firstBlock = lastBlock - 38100;
-    console.log("first", firstBlock);
-    console.log("last", lastBlock);
-} */
 
 // function to get gotchi lended for an address
 /* const fetchGotchiLended = async () => {
@@ -273,7 +266,26 @@ async function fetchDataFromSheet3 () {
         const getRows = await sheets.spreadsheets.values.get({
             auth,
             spreadsheetId,
-            range: "Results April 2022!A46:A",
+            range: "Results April 2022!A46:A70",
+        })
+
+        return getRows.data.values
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function fetchDataFromSheet4 () {
+    const client = await auth.getClient();
+    const sheets = google.sheets({version: 'v4', auth: client});
+
+    try {
+
+        // Read rows from spreadsheet
+        const getRows = await sheets.spreadsheets.values.get({
+            auth,
+            spreadsheetId,
+            range: "Results April 2022!A71:A",
         })
 
         return getRows.data.values
@@ -284,7 +296,7 @@ async function fetchDataFromSheet3 () {
 
 const sheetsColumnsArray = ["G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK"];
 
-let i; 
+let i;
 
 async function loop (column) {
     lastTimestamp = moment().unix();
@@ -320,13 +332,22 @@ async function loop3 (column) {
     }
 }
 
+async function loop4 (column) {
+    const borrowerArray = await fetchDataFromSheet4();
+
+    console.log(borrowerArray)
+    for (let i = 0; i < borrowerArray.length; i++) {
+        main(borrowerArray[i][0], i+71, column)
+    }
+}
+
 function updateDate() {
     today = new Date(); 
     dd = String(today.getDate()).padStart(2, '0');
     i = Number(dd - 1);
 }
 
-const job = nodeCron.schedule("0 01 0 * * *", function jobYouNeedToExecute() {
+const job = nodeCron.schedule("00 01 00 * * *", function jobYouNeedToExecute() {
     updateDate();
     console.log("i", i);
     if ( i <= 31) {
@@ -335,7 +356,7 @@ const job = nodeCron.schedule("0 01 0 * * *", function jobYouNeedToExecute() {
 
 }, {timezone: "Etc/GMT"});
 
-const job2 = nodeCron.schedule("0 03 0 * * *", function jobYouNeedToExecute() {
+const job2 = nodeCron.schedule("00 03 00 * * *", function jobYouNeedToExecute() {
     console.log(i);
 
     if ( i <= 31) {
@@ -344,7 +365,7 @@ const job2 = nodeCron.schedule("0 03 0 * * *", function jobYouNeedToExecute() {
 
 }, {timezone: "Etc/GMT"});
 
-const job3 = nodeCron.schedule("0 05 00 * * *", function jobYouNeedToExecute() {
+const job3 = nodeCron.schedule("00 05 00 * * *", function jobYouNeedToExecute() {
     console.log(i);
 
     if ( i <= 31) {
@@ -353,10 +374,19 @@ const job3 = nodeCron.schedule("0 05 00 * * *", function jobYouNeedToExecute() {
 
 }, {timezone: "Etc/GMT"});
 
+const job4 = nodeCron.schedule("00 07 00 * * *", function jobYouNeedToExecute() {
+    console.log(i);
+
+    if ( i <= 31) {
+        loop4(sheetsColumnsArray[i]);
+    }
+
+}, {timezone: "Etc/GMT"});
+
 // function to find block based on timestamp
 /* const findBlocks = async () => {
     const response = await fetch(
-      `https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=1649376120&closest=before&apikey=YourApiKeyToken`
+      `https://api.polygonscan.com/api?module=block&action=getblocknobytime&timestamp=1651104120&closest=before&apikey=YourApiKeyToken`
     );
     const blockNumber = await response.json();
     console.log("BLOCK", Number(blockNumber.result))
